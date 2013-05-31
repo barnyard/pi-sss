@@ -1,0 +1,151 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:sws="http://www.springframework.org/schema/web-services"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+   	   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+       http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services-1.5.xsd">
+
+	<context:component-scan base-package="com.bt.pi">
+		<context:include-filter type="assignable" expression="com.bt.pi.core.entity.PiEntity" />
+		<context:include-filter type="assignable" expression="com.bt.pi.core.cli.commands.ManagementCommand" />
+		<context:include-filter type="assignable" expression="com.bt.pi.core.message.KoalaMessageBase" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.cli.*" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.console.*" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.util.messaging.*" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.app.common.net.dhcp.*" />
+		<context:exclude-filter type="assignable" expression="com.bt.pi.core.util.common.CommandRunner" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.dht.*MyDeletablePiEntity" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.past.*MyDhtPiEntity" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.dht.*MyPiEntity" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.core.dht.*MyDhtRWPiEntity" />
+	</context:component-scan>
+
+	<bean id="log4jFileResource" class="org.springframework.core.io.ClassPathResource">
+		<constructor-arg value="log4j.xml" />
+	</bean>
+
+	<util:property-path id="log4jFile" path="log4jFileResource.file" />
+	
+	<bean id="commandRunner" class="com.bt.pi.core.testing.StubCommandRunner">
+		<property name="commandExecutor" ref="stubCommandExecutor" />
+	</bean>
+
+	<bean id="stubCommandExecutor" class="com.bt.pi.core.testing.StubCommandExecutor">
+		<constructor-arg index="0" ref="taskExecutor" />
+	</bean>
+
+	<util:properties id="properties" location="classpath:pisss_robustness_p2p.properties" />
+
+	<bean class="com.bt.pi.core.conf.PropertyAnnotationAndPlaceholderConfigurer">
+		<property name="properties" ref="properties" />
+	</bean>
+
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+		<property name="queueCapacity" value="25" />
+	</bean>
+
+	<bean id="scheduledExecutorService" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+		<property name="continueScheduledExecutionAfterException" value="true" />
+		<property name="poolSize" value="16" />
+	</bean>
+
+	<import resource="applicationContext-p2p-sss.xml" />
+
+	<bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
+
+	<bean id="userCache" class="com.bt.pi.core.dht.cache.DhtCache">
+		<property name="cache" ref="userEhCache" />
+	</bean>
+
+	<bean id="userBlockingCache" class="com.bt.pi.core.dht.cache.BlockingDhtCache">
+		<property name="cache" ref="userEhCache" />
+	</bean>
+
+	<bean id="userEhCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheName" value="userEhCache" />
+		<property name="cacheManager" ref="ehCacheManager" />
+		<property name="maxElementsInMemory" value="100" />
+		<property name="overflowToDisk" value="false" />
+		<property name="eternal" value="false" />
+		<property name="timeToLive" value="60" />
+		<property name="timeToIdle" value="60" />
+	</bean>
+
+	<bean id="generalCache" class="com.bt.pi.core.dht.cache.DhtCache">
+		<property name="cache" ref="generalEhCache" />
+	</bean>
+
+	<bean id="generalBlockingCache" class="com.bt.pi.core.dht.cache.BlockingDhtCache">
+		<property name="cache" ref="generalEhCache" />
+	</bean>
+
+	<bean id="generalEhCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheName" value="generalEhCache" />
+		<property name="cacheManager" ref="ehCacheManager" />
+		<property name="maxElementsInMemory" value="100" />
+		<property name="overflowToDisk" value="false" />
+		<property name="eternal" value="false" />
+		<property name="timeToLive" value="600" />
+		<property name="timeToIdle" value="600" />
+	</bean>
+
+	<bean id="systemResourceStateCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheName" value="systemResourceStateCache" />
+		<property name="cacheManager" ref="ehCacheManager" />
+		<property name="maxElementsInMemory" value="100" />
+		<property name="overflowToDisk" value="false" />
+		<property name="eternal" value="false" />
+		<property name="timeToLive" value="900" />
+		<property name="timeToIdle" value="900" />
+	</bean>
+
+	<!-- Scenario runner -->
+	<bean id="scenarioRunner" class="com.ragstorooks.testrr.Runner">
+		<property name="numberOfRuns" value="200" />
+		<property name="numberOfConcurrentStarts" value="10" />
+		<property name="coolDownPeriod" value="6000000" />
+		<property name="useDeterministicNumberOfRuns" value="false" />
+		<property name="scheduledExecutorService" ref="scheduledThreadPoolExecutor" />
+		<property name="scenarioWeightings" ref="scenarioWeightings" />
+	</bean>
+
+	<bean id="scheduledThreadPoolExecutor" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+		<property name="continueScheduledExecutionAfterException" value="true" />
+		<property name="poolSize" value="40" />
+	</bean>
+
+	<bean id="scenarioWeightings" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key-ref="putGetDeleteSmallScenario" value="90" />
+				<entry key-ref="putGetDeleteLargeScenario" value="100" />
+				<entry key-ref="getSmallScenario" value="10" />
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="dhtClientFactory" class="com.bt.pi.core.dht.DhtClientFactory">
+		<lookup-method bean="updateAwareDhtWriter" name="createEmptyBlockingWriter" />
+		<lookup-method bean="simpleDhtReader" name="createEmptyBlockingReader" />
+	</bean>
+
+	<util:list id="errorLogAppenderFilterList">
+		<value>foo@bar.com</value>
+	</util:list>
+
+	<bean id="springMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+  		<property name="host" value="localhost"/>
+	</bean>
+
+	<bean id="freeMarkerConfiguration" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+		<property name="templateLoaderPaths">
+			<list>
+				<value>classpath:templates</value>
+				<value>/</value>
+			</list>
+		</property>
+		<property name="preferFileSystemAccess" value="false" />
+	</bean>
+</beans>

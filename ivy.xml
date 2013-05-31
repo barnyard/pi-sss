@@ -1,0 +1,21 @@
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
+	<info organisation="bt" module="pi-sss" />
+	<configurations>
+		<include file="${p2p-build.base}/ivyconfigurations.xml" />
+	</configurations>
+	<dependencies>
+        <dependency org="com.sun.grizzly" name="grizzly-http-webserver" rev="1.9.18" conf="main" />
+		<dependency name="p2p-app" rev="latest.integration" conf="main->main;test->test" />
+		<dependency org="jersey" name="jersey" rev="1.1.4" conf="main">
+			<artifact name="jersey-bundle" />
+			<artifact name="jersey-spring" />
+		</dependency>
+		<dependency org="jersey" name="jettison" rev="1.1" conf="main" />
+		<dependency org="jersey" name="jsr311-api" rev="1.1" conf="main" />
+		<dependency org="org.objectweb" name="asm" rev="3.1" conf="main" />
+		<dependency org="org.jets3t" name="jets3t" rev="0.7.2" conf="main">
+			<artifact name="jets3t" />
+			<artifact name="jets3t" type="source" ext="jar" m:classifier="sources" />
+		</dependency>
+	</dependencies>
+</ivy-module>

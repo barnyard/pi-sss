@@ -1,0 +1,10 @@
+<FindBugsFilter>
+	<Match>
+		<!--  nulling out File objects to keep NFS happy -->
+		<Class name="com.bt.pi.sss.entities.ObjectMetaData" />
+		<Bug code="DLS" />
+	</Match>
+	<Match>
+		<Bug code="SIC" />	<!--  exclude static inner class whining to allow closure-like patterns -->
+	</Match>
+</FindBugsFilter>

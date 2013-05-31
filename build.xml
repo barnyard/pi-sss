@@ -1,0 +1,53 @@
+<project name="pi-sss" default="default">
+
+	<!-- user-specific properties + default values -->
+	<property file="properties/${user.name}.properties" />
+	<property file="properties/build.properties" />
+
+	<import file="${p2p-build.base}/build.xml" />
+
+	<target name="compile.robustness" depends="compile">
+		<mkdir dir="build/classes/robustness" />
+		<javac debug="yes" classpathref="integration.classpath" srcdir="src/robustness/java" destdir="build/classes/robustness" />
+	</target>
+
+	<path id="robustness.classpath">
+		<pathelement location="build/classes/robustness" />
+		<pathelement location="src/robustness/resources" />
+		<path refid="integration.classpath" />
+		<pathelement location="src/dist/resources" />
+	</path>
+
+	<target name="robustness.local" depends="clean, compile.robustness">
+		<java classname="com.bt.pi.sss.robustness.Main" fork="yes" failonerror="yes">
+			<sysproperty key="PISSS_HOST" value="localhost"/>
+			<sysproperty key="PISSS_PORT" value="9090"/>
+			<sysproperty key="ACCESS_KEY" value="Y7HqdJgHC7aYIbnxPRNU1A"/>
+			<sysproperty key="SECRET_KEY" value="sIL03bvLbAa__Oa7Oe5Ssuhjalg6m-cd0RDwOg"/>
+			<classpath refid="robustness.classpath" />
+		</java>
+	</target>
+
+	<target name="robustness.red1" depends="clean, compile.robustness">
+		<java classname="com.bt.pi.sss.robustness.Main" fork="yes" failonerror="yes">
+			<sysproperty key="PISSS_HOST" value="red1.elseg.cloud21cn.com"/>
+			<sysproperty key="PISSS_PORT" value="8080"/>
+			<sysproperty key="ACCESS_KEY" value="Dny1gjtWdK4L4Y3IhKOhKg"/>
+			<sysproperty key="SECRET_KEY" value="hYQAS5U5iLLt_IpOwNauSdjAZjACUs27P4VCTQ"/>
+			<sysproperty key="http.proxyHost" value="proxy.intra.bt.com"/>
+			<sysproperty key="http.proxyPort" value="8080"/>
+			<classpath refid="robustness.classpath" />
+		</java>
+	</target>
+
+	<target name="red1.load.test" depends="clean, compile.robustness">
+		<java classname="com.bt.pi.sss.GentleLoadTest" fork="yes" failonerror="yes" maxmemory="500m">
+			<classpath refid="robustness.classpath" />
+			<sysproperty key="s3service.s3-endpoint" value="localhost"/>
+			<sysproperty key="s3service.s3-endpoint-http-port" value="9090"/>
+			<sysproperty key="http.proxyHost" value="proxy.intra.bt.com"/>
+			<sysproperty key="http.proxyPort" value="8080"/>
+		</java>
+	</target>
+
+</project>

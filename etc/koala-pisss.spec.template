@@ -1,0 +1,60 @@
+Summary:	Koala Pisss
+Name: 		Pisss
+Version: 	@build.version@
+Release: 	@build.release@
+License: 	Restricted
+Group: 		Applications/System
+Vendor:     BT Group plc
+
+%description
+Koala Pisss is the storage server for elastic compute infrastructure
+
+%files
+/opt/koala/pisss/current/*
+
+%pre
+rm -f /opt/koala/pisss/current
+rm -rf /opt/koala/pisss/release/%{version}-%{release}
+
+%post
+mkdir -p /opt/koala/pisss/release
+mkdir -p /opt/koala/pisss/var/log
+mkdir -p /opt/koala/pisss/var/run
+mkdir -p /opt/koala/pisss/var/tmp
+mkdir -p /opt/koala/pisss/var/buckets
+mkdir -p /opt/koala/pisss/conf/
+
+mv /opt/koala/pisss/current/ /opt/koala/pisss/release/%{version}-%{release}
+ln -sf /opt/koala/pisss/release/%{version}-%{release} /opt/koala/pisss/current
+
+if [ ! -e /opt/koala/pisss/conf/log4j.xml ]; 
+then
+	cp /opt/koala/pisss/current/exampleconf/log4j.xml /opt/koala/pisss/conf/log4j.xml
+fi
+if [ ! -e /opt/koala/pisss/conf/pisss.properties ]; 
+then
+	cp /opt/koala/pisss/current/exampleconf/pisss.properties /opt/koala/pisss/conf/pisss.properties
+fi
+if [ ! -e /opt/koala/pisss/conf/database.properties ]; 
+then
+	cp /opt/koala/pisss/current/exampleconf/database.properties /opt/koala/pisss/conf/database.properties
+fi
+
+ln -sf /opt/koala/pisss/current/koala-pisss /etc/init.d/koala-pisss
+chmod 755 /opt/koala/pisss/current/koala-pisss
+chkconfig --add koala-pisss
+
+%preun
+if [ -x /etc/init.d/koala-pisss ]; 
+then
+	/etc/init.d/koala-pisss stop 
+	chkconfig --del koala-pisss 
+	rm -rf /etc/init.d/koala-pisss
+fi
+mv /opt/koala/pisss/release/%{version}-%{release} /tmp/%{version}-%{release}
+
+%postun
+rm -rf /opt/koala/pisss/current
+rm -rf /opt/koala/pisss/release/%{version}-%{release}
+mv /tmp/%{version}-%{release} /opt/koala/pisss/release/%{version}-%{release}
+

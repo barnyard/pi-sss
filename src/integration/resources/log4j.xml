@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{dd MM yyyy HH:mm:ss,SSS}] [%X{TRANSACTION_ID}] [%c{1}:%t] %-5p %m%n"/>
+		</layout>
+	</appender>
+	<appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="build/integration/log/p2p.log"/>
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{dd MM yyyy HH:mm:ss,SSS}] [%X{TRANSACTION_ID}] [%c{1}:%t] %-5p %m%n"/>
+		</layout>
+	</appender>
+	<category name="com.ragstorooks.testrr" additivity="false">
+        <priority value="DEBUG" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </category>
+	<category name="org.springframework" additivity="false">
+        <priority value="ERROR" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </category>
+	<category name="com.bt.pi" additivity="false">
+        <priority value="DEBUG" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </category>
+   
+	 <logger name="com.bt.pi.core">
+		<level value="error" />
+		<appender-ref ref="FILE" />
+	</logger>
+	 <logger name="com.bt.pi.core.dht">
+		<level value="error" />
+		<appender-ref ref="FILE" />
+	</logger>
+    <category name="com.sun.jersey" additivity="false">
+        <priority value="ERROR" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </category>
+    <category name="com.sun.grizzly" additivity="false">
+        <priority value="DEBUG" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </category>
+    <category name="org.jets3t" additivity="false">
+        <priority value="ERROR" />
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </category>
+	<root>
+		<priority value="WARN" />
+		<appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+	</root>
+</log4j:configuration>

@@ -1,0 +1,42 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:sws="http://www.springframework.org/schema/web-services"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+   	   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+       http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services-1.5.xsd">
+
+	<context:component-scan base-package="com.bt.pi.sss">
+		<context:include-filter type="assignable" expression="com.bt.pi.core.entity.PiEntity" />
+		<context:exclude-filter type="regex" expression="com.bt.pi.sss.robustness.*" />
+	</context:component-scan>
+
+	<bean id="resourceConfig" class="com.sun.jersey.api.core.DefaultResourceConfig">
+		<property name="propertiesAndFeatures">
+			<map>
+				<entry key="com.sun.jersey.spi.container.ContainerRequestFilters">
+					<list>
+						<bean class="com.bt.pi.sss.filter.TransactionIdRequestFilter" />
+						<bean class="com.bt.pi.sss.filter.AuthenticationFilter" />
+						<bean class="com.bt.pi.sss.filter.ValidRegionFilter" />
+					</list>
+				</entry>
+				<entry key="com.sun.jersey.spi.container.ContainerResponseFilters">
+					<list>
+						<bean class="com.bt.pi.sss.filter.NamespaceManglingFilter" />
+						<bean class="com.bt.pi.sss.filter.TransactionIdResponseFilter" />
+					</list>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="pisssHttpServer" class="com.bt.pi.sss.HttpServer" init-method="init" destroy-method="destroy">
+		<constructor-arg index="0" ref="resourceConfig" />
+	</bean>
+
+	<bean id="pisssHttpsServer" class="com.bt.pi.sss.PisssHttpsServer" init-method="startServer" destroy-method="destroy">
+		<property name="resourceConfig" ref="resourceConfig" />
+		<property name="keyStoreLocation" value="${keystore.location}" />
+		<property name="password" value="${keystore.password}" />
+	</bean>
+</beans>

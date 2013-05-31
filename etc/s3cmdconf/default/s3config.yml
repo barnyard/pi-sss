@@ -1,0 +1,17 @@
+##
+## config file for s3sync
+##
+
+AWS_ACCESS_KEY_ID: Y7HqdJgHC7aYIbnxPRNU1A
+AWS_SECRET_ACCESS_KEY: sIL03bvLbAa__Oa7Oe5Ssuhjalg6m-cd0RDwOg
+AWS_S3_HOST: localhost
+AWS_S3_PORT: 9090
+#AWS_S3_VIRTUAL_PATH: /services/Walrus
+#SSL_CERT_DIR: /home/fabrizio/euca-harmo/koalascope
+AWS_CALLING_FORMAT: REGULAR
+#HTTP_PROXY_HOST: proxy.intra.bt.com
+#HTTP_PROXY_PORT: 8080
+
+
+
+
